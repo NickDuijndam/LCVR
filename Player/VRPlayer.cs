@@ -5,7 +5,6 @@ using UnityEngine.XR;
 using System;
 using UnityEngine.Rendering.HighDefinition;
 using LCVR.Input;
-using UnityEngine.Animations.Rigging;
 using System.Collections;
 using LCVR.Networking;
 using LCVR.Assets;
@@ -13,7 +12,7 @@ using GameNetcodeStuff;
 using UnityEngine.XR.Interaction.Toolkit;
 using Microsoft.MixedReality.Toolkit.Experimental.UI;
 using LCVR.Patches;
-using HarmonyLib;
+using LCVR.Player.IK;
 
 namespace LCVR.Player
 {
@@ -51,6 +50,10 @@ namespace LCVR.Player
         public GameObject leftController;
         public GameObject rightController;
 
+        public GameObject rightFootTracker;
+        public GameObject leftFootTracker;
+        public GameObject waistTracker;
+
         private XRRayInteractor leftControllerRayInteractor;
         private XRRayInteractor rightControllerRayInteractor;
 
@@ -76,6 +79,10 @@ namespace LCVR.Player
 
         private GameObject leftHandVRTarget;
         private GameObject rightHandVRTarget;
+        
+        private GameObject leftFootVRTarget;
+        private GameObject rightFootVRTarget;
+        private GameObject waistVRTarget;
 
         public Transform leftItemHolder;
         public Transform rightItemHolder;
@@ -118,6 +125,41 @@ namespace LCVR.Player
 
             // Fool the animator (this removes console error spam)
             new GameObject("MainCamera").transform.parent = Find("ScavengerModel/metarig/CameraContainer").transform;
+            
+            // Add VRIKManager to player model
+            var metarig = Find("ScavengerModel/metarig").gameObject;
+            var vrIkManager = metarig.AddComponent<VRIKManager>();
+            vrIkManager.references_root = metarig.transform;
+            vrIkManager.references_pelvis = Find("ScavengerModel/metarig/spine/spine.001");
+            vrIkManager.references_spine = Find("ScavengerModel/metarig/spine/spine.001/spine.002");
+            vrIkManager.references_chest = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003");
+            // vrIkManager.references_neck = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/spine.004");
+            vrIkManager.references_head = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/spine.004");
+            
+            vrIkManager.references_leftShoulder = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.L");
+            vrIkManager.references_leftUpperArm = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.L/arm.L_upper");
+            vrIkManager.references_leftForearm = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.L/arm.L_upper/arm.L_lower");
+            vrIkManager.references_leftHand = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.L/arm.L_upper/arm.L_lower/hand.L");
+            
+            vrIkManager.references_rightShoulder = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.R");
+            vrIkManager.references_rightUpperArm = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.R/arm.R_upper");
+            vrIkManager.references_rightForearm = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.R/arm.R_upper/arm.R_lower");
+            vrIkManager.references_rightHand = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/shoulder.R/arm.R_upper/arm.R_lower/hand.R");
+            
+            vrIkManager.references_leftThigh = Find("ScavengerModel/metarig/spine/thigh.L");
+            vrIkManager.references_leftCalf = Find("ScavengerModel/metarig/spine/thigh.L/shin.L");
+            vrIkManager.references_leftFoot = Find("ScavengerModel/metarig/spine/thigh.L/shin.L/foot.L");
+            vrIkManager.references_leftToes = Find("ScavengerModel/metarig/spine/thigh.L/shin.L/foot.L/toe.L");
+            
+            vrIkManager.references_rightThigh = Find("ScavengerModel/metarig/spine/thigh.R");
+            vrIkManager.references_rightCalf = Find("ScavengerModel/metarig/spine/thigh.R/shin.R");
+            vrIkManager.references_rightFoot = Find("ScavengerModel/metarig/spine/thigh.R/shin.R/foot.R");
+            vrIkManager.references_rightToes = Find("ScavengerModel/metarig/spine/thigh.R/shin.R/foot.R/toe.R");
+
+            metarig.AddComponent<VRPlayerIK>();
+
+            // var vrik = .InitializeVRIK(vrIkManager, Find("ScavengerModel/metarig"));
+
 
             // Unparent camera container
             mainCamera.transform.parent = xrOrigin;
@@ -134,10 +176,19 @@ namespace LCVR.Player
             // Create controller objects
             rightController = new GameObject("Right Controller");
             leftController = new GameObject("Left Controller");
+            
+            // Create FBT objects
+            rightFootTracker = new GameObject("Right Foot Tracker");
+            leftFootTracker = new GameObject("Left Foot Tracker");
+            waistTracker = new GameObject("Waist Tracker");
 
             // And mount to camera container
             rightController.transform.parent = xrOrigin;
             leftController.transform.parent = xrOrigin;
+            
+            rightFootTracker.transform.parent = xrOrigin;
+            leftFootTracker.transform.parent = xrOrigin;
+            waistTracker.transform.parent = xrOrigin;
 
             // Left hand tracking
             var rightHandPoseDriver = rightController.AddComponent<TrackedPoseDriver>();
@@ -151,14 +202,48 @@ namespace LCVR.Player
             leftHandPoseDriver.rotationAction = Actions.LeftHand_Rotation;
             leftHandPoseDriver.trackingStateInput = new InputActionProperty(Actions.LeftHand_TrackingState);
 
+            // Right foot tracking
+            var rightFootPoseDriver = rightFootTracker.AddComponent<TrackedPoseDriver>();
+            rightFootPoseDriver.positionAction = Actions.RightFoot_Position;
+            rightFootPoseDriver.rotationAction = Actions.RightFoot_Rotation;
+            rightFootPoseDriver.trackingStateInput = new InputActionProperty(Actions.RightFoot_TrackingState);
+            
+            // Left foot tracking
+            var leftFootPoseDriver = leftFootTracker.AddComponent<TrackedPoseDriver>();
+            leftFootPoseDriver.positionAction = Actions.LeftFoot_Position;
+            leftFootPoseDriver.rotationAction = Actions.LeftFoot_Rotation;
+            leftFootPoseDriver.trackingStateInput = new InputActionProperty(Actions.LeftFoot_TrackingState);
+                        
+            // Waist tracking
+            var waistPoseDriver = waistTracker.AddComponent<TrackedPoseDriver>();
+            waistPoseDriver.positionAction = Actions.Waist_Position;
+            waistPoseDriver.rotationAction = Actions.Waist_Rotation;
+            waistPoseDriver.trackingStateInput = new InputActionProperty(Actions.Waist_TrackingState);
+            
             // Set up IK Rig VR targets
             var headVRTarget = new GameObject("Head VR Target");
             rightHandVRTarget = new GameObject("Right Hand VR Target");
             leftHandVRTarget = new GameObject("Left Hand VR Target");
+            
+            rightFootVRTarget = new GameObject("Right Foot VR Target");
+            leftFootVRTarget = new GameObject("Left Foot VR Target");
+            waistVRTarget = new GameObject("Waist VR Target");
 
             headVRTarget.transform.parent = mainCamera.transform;
             rightHandVRTarget.transform.parent = rightController.transform;
             leftHandVRTarget.transform.parent = leftController.transform;
+            
+            waistVRTarget.transform.parent = waistTracker.transform;
+            rightFootVRTarget.transform.parent = rightFootTracker.transform;
+            leftFootVRTarget.transform.parent = leftFootTracker.transform;
+
+            // Set VRIK targets
+            vrIkManager.solver_spine_headTarget = headVRTarget.transform;
+            vrIkManager.solver_rightArm_target = rightHandVRTarget.transform;
+            vrIkManager.solver_leftArm_target = leftHandVRTarget.transform;
+            vrIkManager.solver_spine_pelvisTarget = waistVRTarget.transform;
+            vrIkManager.solver_rightLeg_target = rightFootVRTarget.transform;
+            vrIkManager.solver_leftLeg_target = leftFootVRTarget.transform;
 
             // Head defintely does need to have offsets (in this case an offset of 0, 0, 0)
             headVRTarget.transform.localPosition = Vector3.zero;
@@ -168,6 +253,13 @@ namespace LCVR.Player
 
             leftHandVRTarget.transform.localPosition = new Vector3(-0.0279f, 0.0353f, 0.0044f);
             leftHandVRTarget.transform.localRotation = Quaternion.Euler(0, 270, 192);
+            
+            // rightFootVRTarget.transform.localPosition = Vector3.zero;
+            // rightFootVRTarget.transform.localRotation = Quaternion.identity;
+            // leftFootVRTarget.transform.localPosition = Vector3.zero;
+            // leftFootVRTarget.transform.localRotation = Quaternion.identity;
+            // waistVRTarget.transform.localPosition = Vector3.zero;
+            // waistVRTarget.transform.localRotation = Quaternion.identity;
 
             // Add controller interactor
             mainHand = rightController.AddComponent<VRController>();
@@ -224,119 +316,152 @@ namespace LCVR.Player
 
         private IEnumerator RebuildRig()
         {
-            RebuildingRig = true;
+            // RebuildingRig = true;
 
             // Temporarily disable animation controller
             var animator = GetComponentInChildren<Animator>();
             animator.runtimeAnimatorController = null;
 
-            // Disable target movement by IK
-            GetComponentsInChildren<IKRigFollowVRRig>().Do(follow => follow.enabled = false);
-
-            yield return null;
-
-            // ARMS ONLY RIG
-
-            // Set up rigging
-            var model = Find("ScavengerModel/metarig/ScavengerModelArmsOnly", true).gameObject;
-            var modelMetarig = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig", true); 
+            // // Disable target movement by IK
+            // GetComponentsInChildren<IKRigFollowVRRig>().Do(follow => follow.enabled = false);
+            //
+            // yield return null;
+            //
+            // // ARMS ONLY RIG
+            //
+            // // Set up rigging
+            // var model = Find("ScavengerModel/metarig/ScavengerModelArmsOnly", true).gameObject;
+            // var modelMetarig = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig", true); 
+            //
+            // Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms", true);
+            //
+            // var rigFollow = model.GetComponent<IKRigFollowVRRig>() ?? model.AddComponent<IKRigFollowVRRig>();
+            // rigFollow.enabled = false;
+            //
+            // // Setting up the head
+            // rigFollow.head = mainCamera.transform;
+            //
+            // // Setting up the right arm
+            //
+            // rightHandRigTransform = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/shoulder.R/arm.R_upper/arm.R_lower/hand.R").transform;
+            //
+            // var rightArmTarget = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms/RightArm/ArmsRightArm_target");
+            //
+            // rightArmTarget.localPosition = new Vector3(2.271f, 1.800556f, 1.008003f);
+            // rightArmTarget.localEulerAngles = new Vector3(180, 0, -78.54772f);
+            //
+            // rigFollow.rightHand = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = rightArmTarget.transform,
+            //     vrTarget = rightHandVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
+            //
+            // // Setting up the left arm
+            //
+            // leftHandRigTransform = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/shoulder.L/arm.L_upper/arm.L_lower/hand.L").transform;
+            //
+            // var leftArmTarget = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms/LeftArm/ArmsLeftArm_target");
+            // rigFollow.leftHand = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = leftArmTarget.transform,
+            //     vrTarget = leftHandVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
+            //
+            // // This one is pretty hit or miss, sometimes y needs to be -0.2f, other times it needs to be -2.25f
+            // rigFollow.headBodyPositionOffset = new Vector3(0, -0.2f, 0);
+            //
+            // // Disable badges
+            // Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LevelSticker").gameObject.SetActive(false);
+            // Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/BetaBadge").gameObject.SetActive(false);
+            //
+            // // FULL BODY RIG
+            //
+            // // Set up rigging
+            // var fullModel = Find("ScavengerModel", true).gameObject;
+            // var fullModelMetarig = Find("ScavengerModel/metarig", true);
+            //
+            // var fullRigFollow = fullModel.GetComponent<IKRigFollowVRRig>() ?? fullModel.AddComponent<IKRigFollowVRRig>();
+            // fullRigFollow.enabled = false;
+            //
+            // // Setting up the right arm
+            //
+            // var fullRightArmTarget = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/RightArm_target");
+            // fullRigFollow.rightHand = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = fullRightArmTarget.transform,
+            //     vrTarget = rightHandVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
+            //
+            // // Setting up the left arm
+            //
+            // var fullLeftArmTarget = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LeftArm_target");
+            // fullRigFollow.leftHand = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = fullLeftArmTarget.transform,
+            //     vrTarget = leftHandVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
             
-            Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms", true);
-
-            var rigFollow = model.GetComponent<IKRigFollowVRRig>() ?? model.AddComponent<IKRigFollowVRRig>();
-            rigFollow.enabled = false;
-
-            // Setting up the head
-            rigFollow.head = mainCamera.transform;
-
-            // Setting up the right arm
-
-            rightHandRigTransform = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/shoulder.R/arm.R_upper/arm.R_lower/hand.R").transform;
-
-            var rightArmTarget = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms/RightArm/ArmsRightArm_target");
-
-            rightArmTarget.localPosition = new Vector3(2.271f, 1.800556f, 1.008003f);
-            rightArmTarget.localEulerAngles = new Vector3(180, 0, -78.54772f);
-
-            rigFollow.rightHand = new IKRigFollowVRRig.VRMap()
-            {
-                ikTarget = rightArmTarget.transform,
-                vrTarget = rightHandVRTarget.transform,
-                trackingPositionOffset = Vector3.zero,
-                trackingRotationOffset = Vector3.zero
-            };
-
-            // Setting up the left arm
-
-            leftHandRigTransform = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/shoulder.L/arm.L_upper/arm.L_lower/hand.L").transform;
-
-            var leftArmTarget = Find("ScavengerModel/metarig/ScavengerModelArmsOnly/metarig/spine.003/RigArms/LeftArm/ArmsLeftArm_target");
-            rigFollow.leftHand = new IKRigFollowVRRig.VRMap()
-            {
-                ikTarget = leftArmTarget.transform,
-                vrTarget = leftHandVRTarget.transform,
-                trackingPositionOffset = Vector3.zero,
-                trackingRotationOffset = Vector3.zero
-            };
-
-            // This one is pretty hit or miss, sometimes y needs to be -0.2f, other times it needs to be -2.25f
-            rigFollow.headBodyPositionOffset = new Vector3(0, -0.2f, 0);
-
-            // Disable badges
-            Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LevelSticker").gameObject.SetActive(false);
-            Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/BetaBadge").gameObject.SetActive(false);
-
-            // FULL BODY RIG
-
-            // Set up rigging
-            var fullModel = Find("ScavengerModel", true).gameObject;
-            var fullModelMetarig = Find("ScavengerModel/metarig", true);
-
-            var fullRigFollow = fullModel.GetComponent<IKRigFollowVRRig>() ?? fullModel.AddComponent<IKRigFollowVRRig>();
-            fullRigFollow.enabled = false;
-
-            // Setting up the right arm
-
-            var fullRightArmTarget = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/RightArm_target");
-            fullRigFollow.rightHand = new IKRigFollowVRRig.VRMap()
-            {
-                ikTarget = fullRightArmTarget.transform,
-                vrTarget = rightHandVRTarget.transform,
-                trackingPositionOffset = Vector3.zero,
-                trackingRotationOffset = Vector3.zero
-            };
-
-            // Setting up the left arm
-
-            var fullLeftArmTarget = Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LeftArm_target");
-            fullRigFollow.leftHand = new IKRigFollowVRRig.VRMap()
-            {
-                ikTarget = fullLeftArmTarget.transform,
-                vrTarget = leftHandVRTarget.transform,
-                trackingPositionOffset = Vector3.zero,
-                trackingRotationOffset = Vector3.zero
-            };
+            // // Setting up the right foot
+            //
+            // var fullRightFootTarget = Find("ScavengerModel/metarig/Rig 1/RightLeg/RightLeg_target");
+            // fullRigFollow.rightFoot = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = fullRightFootTarget.transform,
+            //     vrTarget = rightFootVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
+            //
+            // // Setting up the left foot
+            //
+            // var fullLeftFootTarget = Find("ScavengerModel/metarig/Rig 1/LeftLeg/LeftLeg_target");
+            // fullRigFollow.leftFoot = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = fullLeftFootTarget.transform,
+            //     vrTarget = leftFootVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
+            //
+            // // Setting up the waist
+            //
+            // var fullWaistTarget = Find("ScavengerModel/metarig/spine/spine.001");
+            // fullRigFollow.waist = new IKRigFollowVRRig.VRMap()
+            // {
+            //     ikTarget = fullWaistTarget.transform,
+            //     vrTarget = waistVRTarget.transform,
+            //     trackingPositionOffset = Vector3.zero,
+            //     trackingRotationOffset = Vector3.zero
+            // };
 
             // This one is pretty hit or miss, sometimes y needs to be 0, other times it needs to be -2.25f
-            fullRigFollow.headBodyPositionOffset = new Vector3(0, 0, 0);
+            // fullRigFollow.headBodyPositionOffset = new Vector3(0, 0, 0);
 
+            // yield return null;
+            //
+            // // Rebuild rig
+            // GetComponentInChildren<RigBuilder>().Build();
+            //
             yield return null;
-
-            // Rebuild rig
-            GetComponentInChildren<RigBuilder>().Build();
-
-            yield return null;
-
-            // Enable target movement by IK
-            GetComponentsInChildren<IKRigFollowVRRig>().Do(follow => follow.enabled = true);
-
-            // Re-enable animation controller
-            animator.runtimeAnimatorController = AssetManager.localVrMetarig;
-
-            // Initialize HUD if not done already
-            hud.Initialize(this);
-
-            RebuildingRig = false;
+            //
+            // // Enable target movement by IK
+            // GetComponentsInChildren<IKRigFollowVRRig>().Do(follow => follow.enabled = true);
+            //
+            // // Re-enable animation controller
+            // animator.runtimeAnimatorController = AssetManager.localVrMetarig;
+            //
+            // // Initialize HUD if not done already
+            // hud.Initialize(this);
+            //
+            // RebuildingRig = false;
         }
 
         private void Sprint_performed(InputAction.CallbackContext obj)
@@ -708,6 +833,10 @@ namespace LCVR.Player
         public VRMap leftHand;
         public VRMap rightHand;
 
+        public VRMap rightFoot;
+        public VRMap leftFoot;
+        public VRMap waist;
+
         public Vector3 headBodyPositionOffset;
 
         private void LateUpdate()
@@ -719,6 +848,13 @@ namespace LCVR.Player
 
             leftHand.Map();
             rightHand.Map();
+
+            if (rightFoot != null)
+                rightFoot.Map();
+            if (leftFoot != null)
+                leftFoot.Map();
+            if (waist != null)
+                waist.Map();
         }
     }
 }

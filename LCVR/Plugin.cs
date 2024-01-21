@@ -219,6 +219,10 @@ namespace LCVR
             var khrSimple = ScriptableObject.CreateInstance<KHRSimpleControllerProfile>();
             var metaQuestTouch = ScriptableObject.CreateInstance<MetaQuestTouchProControllerProfile>();
             var oculusTouch = ScriptableObject.CreateInstance<OculusTouchControllerProfile>();
+            
+            // Create tracker input profile and patch in OpenXR extension string
+            var htcViveTracker = ScriptableObject.CreateInstance<HTCViveTrackerProfile>();
+            typeof(HTCViveTrackerProfile).GetField("openxrExtensionStrings", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(htcViveTracker, HTCViveTrackerProfile.extensionName);
 
             valveIndex.enabled = true;
             hpReverb.enabled = true;
@@ -227,6 +231,7 @@ namespace LCVR
             khrSimple.enabled = true;
             metaQuestTouch.enabled = true;
             oculusTouch.enabled = true;
+            htcViveTracker.enabled = true;
 
             // Patch the OpenXRSettings.features field to include controller profiles
             // This feature list is empty by default if the game isn't a VR game
@@ -239,7 +244,8 @@ namespace LCVR
                 mmController,
                 khrSimple,
                 metaQuestTouch,
-                oculusTouch
+                oculusTouch,
+                htcViveTracker
             };
             typeof(OpenXRSettings).GetField("features", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(OpenXRSettings.Instance, featList.ToArray());
 

@@ -18,6 +18,18 @@ namespace LCVR.Input
         public static InputAction LeftHand_Rotation;
         public static InputAction LeftHand_TrackingState;
 
+        public static InputAction RightFoot_Position;
+        public static InputAction RightFoot_Rotation;
+        public static InputAction RightFoot_TrackingState;
+        
+        public static InputAction LeftFoot_Position;
+        public static InputAction LeftFoot_Rotation;
+        public static InputAction LeftFoot_TrackingState;
+        
+        public static InputAction Waist_Position;
+        public static InputAction Waist_Rotation;
+        public static InputAction Waist_TrackingState;
+
         public readonly static InputActionAsset VRInputActions = InputActionAsset.FromJson(Properties.Resources.vr_inputs);
         public readonly static InputActionAsset LCInputActions = InputActionAsset.FromJson(Properties.Resources.lc_inputs);
 
@@ -36,6 +48,18 @@ namespace LCVR.Input
             LeftHand_Position = VRInputActions.FindAction("Left Hand/Position");
             LeftHand_Rotation = VRInputActions.FindAction("Left Hand/Rotation");
             LeftHand_TrackingState = VRInputActions.FindAction("Left Hand/Tracking State");
+
+            RightFoot_Position = VRInputActions.FindAction("Right Foot/Position");
+            RightFoot_Rotation = VRInputActions.FindAction("Right Foot/Rotation");
+            RightFoot_TrackingState = VRInputActions.FindAction("Right Foot/Tracking State");
+            
+            LeftFoot_Position = VRInputActions.FindAction("Left Foot/Position");
+            LeftFoot_Rotation = VRInputActions.FindAction("Left Foot/Rotation");
+            LeftFoot_TrackingState = VRInputActions.FindAction("Left Foot/Tracking State");
+            
+            Waist_Position = VRInputActions.FindAction("Waist/Position");
+            Waist_Rotation = VRInputActions.FindAction("Waist/Rotation");
+            Waist_TrackingState = VRInputActions.FindAction("Waist/Tracking State");
 
             LCInputActions.Enable();
             VRInputActions.Enable();

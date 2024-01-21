@@ -490,6 +490,210 @@
           "isPartOfComposite": false
         }
       ]
+    },
+    {
+      "name": "Left Foot",
+      "id": "2a921612-a4fe-4842-9c67-445ee5537a1a",
+      "actions": [
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "410c2605-b9ef-4669-ae25-8f09ebfea944",
+          "expectedControlType": "Vector3",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "39ec3c38-09ce-4761-a314-ce72838e6830",
+          "expectedControlType": "Quaternion",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Tracking State",
+          "type": "Value",
+          "id": "bd550c7a-8f1e-4df4-b98a-5f273bf3d0ce",
+          "expectedControlType": "Integer",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "8ce85d91-37a3-4764-a08e-ee72577783b1",
+          "path": "<XRViveTracker>{Left Foot}/devicePosition",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Position",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "9fd81627-09e3-4cb0-bfb8-78cab9718689",
+          "path": "<XRViveTracker>{Left Foot}/deviceRotation",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Rotation",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "d983f441-c2f1-456e-8ec2-955bd2e2ba73",
+          "path": "<XRViveTracker>{Left Foot}/trackingState",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Tracking State",
+          "isComposite": false,
+          "isPartOfComposite": false
+        }
+      ]
+    },
+    {
+      "name": "Right Foot",
+      "id": "1fcc0650-f989-40ac-8b27-00a4e1c18a94",
+      "actions": [
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "e95b04cf-44d0-4701-8cda-13c9f4a0a4f0",
+          "expectedControlType": "Vector3",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "a552c994-79ce-4d5f-95ad-e95c40147893",
+          "expectedControlType": "Quaternion",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Tracking State",
+          "type": "Value",
+          "id": "6bfccc64-622c-4add-8cb3-a8e5519c5e8c",
+          "expectedControlType": "Integer",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "0a0973f4-3228-4001-a93b-3c2c09527cc5",
+          "path": "<XRViveTracker>{Right Foot}/devicePosition",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Position",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "927ef3ac-0ae6-41bc-abbc-c8a5bd898f89",
+          "path": "<XRViveTracker>{Right Foot}/deviceRotation",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Rotation",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "30d5d117-f440-4584-b8c4-e3948bff192d",
+          "path": "<XRViveTracker>{Right Foot}/trackingState",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Tracking State",
+          "isComposite": false,
+          "isPartOfComposite": false
+        }
+      ]
+    },
+    {
+      "name": "Waist",
+      "id": "611266e4-7ee4-4a31-be3e-535e868d1e50",
+      "actions": [
+        {
+          "name": "Position",
+          "type": "Value",
+          "id": "c8113a9e-eb75-4b3b-b5d1-a84c79d3807d",
+          "expectedControlType": "Vector3",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Rotation",
+          "type": "Value",
+          "id": "ea086799-64ea-42f4-8118-372d373a88ab",
+          "expectedControlType": "Quaternion",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        },
+        {
+          "name": "Tracking State",
+          "type": "Value",
+          "id": "df05b53a-ad7e-4e9e-b12c-4e7273cb2d3e",
+          "expectedControlType": "Integer",
+          "processors": "",
+          "interactions": "",
+          "initialStateCheck": true
+        }
+      ],
+      "bindings": [
+        {
+          "name": "",
+          "id": "7636ab9b-44dd-416a-9a83-745889f02168",
+          "path": "<XRViveTracker>{Waist}/devicePosition",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Position",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "33af6810-8e5e-456d-8cab-405013399508",
+          "path": "<XRViveTracker>{Waist}/deviceRotation",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Rotation",
+          "isComposite": false,
+          "isPartOfComposite": false
+        },
+        {
+          "name": "",
+          "id": "1bbe02b5-1f8e-4333-ab50-21d98d21fb04",
+          "path": "<XRViveTracker>{Waist}/trackingState",
+          "interactions": "",
+          "processors": "",
+          "groups": "",
+          "action": "Tracking State",
+          "isComposite": false,
+          "isPartOfComposite": false
+        }
+      ]
     }
   ],
   "controlSchemes": []

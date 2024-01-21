@@ -41,6 +41,9 @@
     <Reference Include="DissonanceVoip">
       <HintPath>Libs\DissonanceVoip.dll</HintPath>
     </Reference>
+    <Reference Include="FinalIK">
+      <HintPath>Libs\FinalIK.dll</HintPath>
+    </Reference>
     <Reference Include="MoreCompany">
       <HintPath>Libs\MoreCompany.dll</HintPath>
     </Reference>

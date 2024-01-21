@@ -17,8 +17,12 @@ namespace LCVR.Networking
         public Transform leftHandVRTarget;
         public Transform rightHandVRTarget;
 
+        public Transform leftFootTracker;
+        public Transform leftFootVRTarget;
+
         public Transform leftHandTarget;
         public Transform rightHandTarget;
+        public Transform leftFootTarget;
 
         public Transform leftItemHolder;
         public Transform rightItemHolder;
@@ -61,23 +65,32 @@ namespace LCVR.Networking
             // Create controller objects & VR targets
             leftController = new GameObject("Left Controller").transform;
             rightController = new GameObject("Right Controller").transform;
+            leftFootTracker = new GameObject("Left Foot Tracker").transform;
+            
             leftHandVRTarget = new GameObject("Left Hand VR Target").transform;
             rightHandVRTarget = new GameObject("Right Hand VR Target").transform;
+            leftFootVRTarget = new GameObject("Left Foot VR Target").transform;
 
             leftController.SetParent(xrOrigin, false);
             rightController.SetParent(xrOrigin, false);
+            leftFootTracker.SetParent(xrOrigin, false);
 
             leftHandVRTarget.SetParent(leftController, false);
             rightHandVRTarget.SetParent(rightController, false);
+            leftFootVRTarget.SetParent(leftFootTracker, false);
 
             rightHandVRTarget.localPosition = new Vector3(0.0279f, 0.0353f, -0.0044f);
             rightHandVRTarget.localEulerAngles = new Vector3(0, 90, 168);
 
             leftHandVRTarget.localPosition = new Vector3(-0.0279f, 0.0353f, 0.0044f);
             leftHandVRTarget.localEulerAngles = new Vector3(0, 270, 192);
+            
+            leftFootVRTarget.localPosition = Vector3.zero;
+            leftFootVRTarget.localRotation = Quaternion.identity;
 
             leftHandTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LeftArm_target").transform;
             rightHandTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/RightArm_target").transform;
+            leftFootTarget = gameObject.Find("ScavengerModel/metarig/Rig 1/LeftLeg/LeftLeg_target").transform;
             camera = gameObject.Find("ScavengerModel/metarig/CameraContainer/MainCamera").transform;
 
             // Set up item holders
@@ -136,11 +149,11 @@ namespace LCVR.Networking
                 xrOrigin.position += transform.forward * 0.55f;
 
             // Apply controller transforms
-            leftHandTarget.position = leftHandVRTarget.position;
-            leftHandTarget.rotation = leftHandVRTarget.rotation;
-
-            rightHandTarget.position = rightHandVRTarget.position;
-            rightHandTarget.rotation = rightHandVRTarget.rotation;
+            // leftHandTarget.position = leftHandVRTarget.position;
+            // leftHandTarget.rotation = leftHandVRTarget.rotation;
+            //
+            // rightHandTarget.position = rightHandVRTarget.position;
+            // rightHandTarget.rotation = rightHandVRTarget.rotation;
         }
 
         private void LateUpdate()
@@ -156,69 +169,69 @@ namespace LCVR.Networking
 
         private IEnumerator RebuildRig()
         {
-            RebuildingRig = true;
+            // RebuildingRig = true;
 
             var animator = GetComponentInChildren<Animator>();
             animator.runtimeAnimatorController = null;
 
             yield return null;
 
-            leftLegConstraint.data = leftLegConstraintData;
-            rightLegConstraint.data = rightLegConstraintData;
-
-            var leftArmHint = gameObject.Find("ScavengerModel/metarig/Rig 1/LeftArm/LeftArm_hint");
-            var rightArmHint = gameObject.Find("ScavengerModel/metarig/Rig 1/RightArm/RightArm_hint");
-
-            var leftArmTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LeftArm_target");
-            var rightArmTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/RightArm_target");
-            var leftLegTarget = gameObject.Find("ScavengerModel/metarig/Rig 1/LeftLeg/LeftLeg_target");
-            var rightLegTarget = gameObject.Find("ScavengerModel/metarig/Rig 1/RightLeg/RightLeg_target");
-
-            leftArmHint.transform.localPosition = new Vector3(-0.7878151f, 1, -2.077282f);
-            rightArmHint.transform.localPosition = new Vector3(2.57f, 1, -1.774f);
-
-            leftArmTarget.transform.localPosition = new Vector3(-1.045884f, -0.05775639f, -0.04409964f);
-            leftArmTarget.transform.localEulerAngles = new Vector3(-174.781f, 0, 77.251f);
-
-            rightArmTarget.transform.localPosition = new Vector3(1.064115f, -0.06609607f, -0.0308033f);
-            rightArmTarget.transform.localEulerAngles = new Vector3(-174.781f, 0, -78.548f);
-
-            leftLegTarget.transform.localPosition = new Vector3(0.99f, 0.209f, 1.011f);
-            leftLegTarget.transform.localEulerAngles = new Vector3(53.2761f, 180, 180);
-
-            rightLegTarget.transform.localPosition = new Vector3(1.436f, 0.27f, 1.058f);
-            rightLegTarget.transform.localEulerAngles = new Vector3(53.2761f, 180, 180);
-
-            yield return null;
-
-            GetComponentInChildren<RigBuilder>().Build();
-            animator.runtimeAnimatorController = AssetManager.remoteVrMetarig;
-
-            yield return null;
-
-            // WHY DOES THIS WORK?!?? (IT IS NOT SUPPOSED TO!?!?!?!!)
-            leftLegConstraint.Reset();
-            rightLegConstraint.Reset();
-            
-            RebuildingRig = false;
+            // leftLegConstraint.data = leftLegConstraintData;
+            // rightLegConstraint.data = rightLegConstraintData;
+            //
+            // var leftArmHint = gameObject.Find("ScavengerModel/metarig/Rig 1/LeftArm/LeftArm_hint");
+            // var rightArmHint = gameObject.Find("ScavengerModel/metarig/Rig 1/RightArm/RightArm_hint");
+            //
+            // var leftArmTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/LeftArm_target");
+            // var rightArmTarget = gameObject.Find("ScavengerModel/metarig/spine/spine.001/spine.002/spine.003/RightArm_target");
+            // var leftLegTarget = gameObject.Find("ScavengerModel/metarig/Rig 1/LeftLeg/LeftLeg_target");
+            // var rightLegTarget = gameObject.Find("ScavengerModel/metarig/Rig 1/RightLeg/RightLeg_target");
+            //
+            // leftArmHint.transform.localPosition = new Vector3(-0.7878151f, 1, -2.077282f);
+            // rightArmHint.transform.localPosition = new Vector3(2.57f, 1, -1.774f);
+            //
+            // leftArmTarget.transform.localPosition = new Vector3(-1.045884f, -0.05775639f, -0.04409964f);
+            // leftArmTarget.transform.localEulerAngles = new Vector3(-174.781f, 0, 77.251f);
+            //
+            // rightArmTarget.transform.localPosition = new Vector3(1.064115f, -0.06609607f, -0.0308033f);
+            // rightArmTarget.transform.localEulerAngles = new Vector3(-174.781f, 0, -78.548f);
+            //
+            // leftLegTarget.transform.localPosition = new Vector3(0.99f, 0.209f, 1.011f);
+            // leftLegTarget.transform.localEulerAngles = new Vector3(53.2761f, 180, 180);
+            //
+            // rightLegTarget.transform.localPosition = new Vector3(1.436f, 0.27f, 1.058f);
+            // rightLegTarget.transform.localEulerAngles = new Vector3(53.2761f, 180, 180);
+            //
+            // yield return null;
+            //
+            // GetComponentInChildren<RigBuilder>().Build();
+            // animator.runtimeAnimatorController = AssetManager.remoteVrMetarig;
+            //
+            // yield return null;
+            //
+            // // WHY DOES THIS WORK?!?? (IT IS NOT SUPPOSED TO!?!?!?!!)
+            // leftLegConstraint.Reset();
+            // rightLegConstraint.Reset();
+            //
+            // RebuildingRig = false;
         }
 
         public void UpdateTargetTransforms(DNet.Rig rig)
         {
-            leftController.localPosition = rig.leftHandPosition;
-            leftController.localEulerAngles = rig.leftHandEulers;
-            leftFingerCurler?.SetCurls(rig.leftHandFingers);
-
-            rightController.localPosition = rig.rightHandPosition;
-            rightController.localEulerAngles = rig.rightHandEulers;
-            rightFingerCurler?.SetCurls(rig.rightHandFingers);
-
-            camera.transform.eulerAngles = rig.cameraEulers;
-            cameraPosAccounted = rig.cameraPosAccounted;
-
-            isCrouching = rig.isCrouching;
-            rotationOffset = rig.rotationOffset;
-            cameraFloorOffset = rig.cameraFloorOffset;
+            // leftController.localPosition = rig.leftHandPosition;
+            // leftController.localEulerAngles = rig.leftHandEulers;
+            // leftFingerCurler?.SetCurls(rig.leftHandFingers);
+            //
+            // rightController.localPosition = rig.rightHandPosition;
+            // rightController.localEulerAngles = rig.rightHandEulers;
+            // rightFingerCurler?.SetCurls(rig.rightHandFingers);
+            //
+            // camera.transform.eulerAngles = rig.cameraEulers;
+            // cameraPosAccounted = rig.cameraPosAccounted;
+            //
+            // isCrouching = rig.isCrouching;
+            // rotationOffset = rig.rotationOffset;
+            // cameraFloorOffset = rig.cameraFloorOffset;
         }
     }
 }
